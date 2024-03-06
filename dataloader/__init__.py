@@ -1,1 +1,1 @@
-from .dataloader import StructureDataset
+from .dataloader import StructureDataset, StructureSeriesDataset

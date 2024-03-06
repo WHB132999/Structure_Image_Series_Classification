@@ -15,10 +15,10 @@ from backbone import build_backbone
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ## Dataset folders
-image_folder_train = './dataset/final_images_labels/structure_images_train'
-image_folder_val = './dataset/final_images_labels/structure_images_val'
-gt_file_train = './dataset/final_images_labels/structure_labels_train.json'
-gt_file_val = './dataset/final_images_labels/structure_labels_val.json'
+image_folder_train = './dataset/final_images_labels/structure_image_series_wo_special_train'
+image_folder_val = './dataset/final_images_labels/structure_image_series_wo_special_val'
+gt_file_train = './dataset/final_images_labels/structure_label_series_wo_special_train.json'
+gt_file_val = './dataset/final_images_labels/structure_label_series_wo_special_val.json'
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -32,14 +32,14 @@ dataloader_train = DataLoader(dataset_train, batch_size=32, shuffle=False)
 dataset_val = StructureDataset(image_folder=image_folder_val, gt_json_file=gt_file_val, transform=transform)
 dataloader_val = DataLoader(dataset_val, batch_size=32, shuffle=False)
 
-model = build_backbone(model_name='resnet_50', num_classes=dataset_train.num_classes, freeze=True)
+model, _ = build_backbone(model_name='resnet_50', num_classes=dataset_train.num_classes, freeze=False)
 model.to(device)
 
 loss_func = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
 scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.1, patience=3, verbose=True)
 
-num_epochs = 20
+num_epochs = 10
 best_val_acc = 0.0
 
 training_writer = SummaryWriter('training_logs')
@@ -54,16 +54,23 @@ for epoch in range(num_epochs):
         inputs_train, labels = inputs_train.to(device), labels.to(device)
 
         optimizer.zero_grad()
-        outputs = model(inputs_train)
+        outputs, _ = model(inputs_train)
 
-        loss = loss_func(outputs, labels)
+        mono_loss = 0.0
+
+        _, predictions_train = torch.max(outputs, 1)
+
+        for idx in range(len(predictions_train)):
+            if idx > 0 and int(predictions_train[idx]) < int(predictions_train[idx - 1]):
+                mono_loss += 5.0
+        
+        
+        loss = loss_func(outputs, labels) + mono_loss
         loss.backward()
 
         optimizer.step()
 
         training_loss += loss.item() * inputs_train.size(0)
-
-        _, predictions_train = torch.max(outputs, 1)
 
         preds_train.extend(predictions_train.cpu().numpy())
         labels_train.extend(labels.cpu().numpy())
@@ -81,7 +88,7 @@ for epoch in range(num_epochs):
         for inputs_val, labels in dataloader_val:
             inputs_val, labels = inputs_val.to(device), labels.to(device)
             
-            outputs = model(inputs_val)
+            outputs, _ = model(inputs_val)
 
             _, predictions_val = torch.max(outputs, 1)
 
@@ -99,6 +106,6 @@ for epoch in range(num_epochs):
 
         if acc_val > best_val_acc:
             best_val_acc = acc_val
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(model.state_dict(), 'best_model_49_32_drop_ordered_labels.pth')
 
 training_writer.close()
