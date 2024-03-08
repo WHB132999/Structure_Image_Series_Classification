@@ -17,15 +17,15 @@ Using the Python files in data_preprocessing folder to do data preprecessing:
 
 <table>
   <tr>
-    <td align="center"><img src="./figures/visual_image_8.png" width="200" alt="Image 1"></td>
-    <td align="center"><img src="./figures/visual_image_16.png" width="200" alt="Image 2"></td>
-    <td align="center"><img src="./figures/visual_image_31.png" width="200" alt="Image 3"></td>
-    <td align="center"><img src="./figures/visual_image_40.png" width="200" alt="Image 4"></td>
+    <td align="center"><img src="./figures/visual_image_8.png" width="400" alt="Image 1"></td>
+    <td align="center"><img src="./figures/visual_image_16.png" width="400" alt="Image 2"></td>
+    <td align="center"><img src="./figures/visual_image_31.png" width="400" alt="Image 3"></td>
+    <td align="center"><img src="./figures/visual_image_40.png" width="400" alt="Image 4"></td>
   </tr>
   <tr>
-    <td align="center"><img src="./figures/visual_image_44.png" width="200" alt="Image 5"></td>
-    <td align="center"><img src="./figures/visual_image_50.png" width="200" alt="Image 6"></td>
-    <td align="center"><img src="./figures/visual_image_56.png" width="200" alt="Image 7"></td>
+    <td align="center"><img src="./figures/visual_image_44.png" width="400" alt="Image 5"></td>
+    <td align="center"><img src="./figures/visual_image_50.png" width="400" alt="Image 6"></td>
+    <td align="center"><img src="./figures/visual_image_56.png" width="400" alt="Image 7"></td>
   </tr>
 </table>
 
