@@ -17,6 +17,7 @@ def labels_extraction(path_to_labels_file):
 
             split_file_label = file_label[0].split(';')
 
+            ## Switch ':' to '_' to match the image names
             image_name = split_file_label[0].replace(':', '_')
             gt_label = split_file_label[1]
 
@@ -82,19 +83,12 @@ for i in range(1, 5):
             continue
 
     for idx, gt_dict in enumerate(dict_list):
+        ## Make the json file for labels for each structure in each structure folder
         json_file_name = 'structure_{}_labels.json'.format(idx)
         sub_folder_name = 'structure_{}'.format(idx)
         json_file_path = os.path.join(new_folder_path, sub_folder_name, json_file_name)
         with open(json_file_path, 'w') as json_file:
             json.dump(gt_dict, json_file, indent=4)
-
-
-
-def labels_cleaning(extracted_labels):
-    camera_1 = []
-    camera_2 = []
-    camera_3 = []
-    camera_4 = []
 
 
 

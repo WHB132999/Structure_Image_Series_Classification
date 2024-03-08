@@ -9,6 +9,7 @@ def build_backbone(model_name=None, num_classes=7, freeze=False):
         
         model_sequence = []
     else:
+        ## For image series, we need lstm to leran the dependencies
         assert model_name == 'sequence_model', "Here must be Sequence_Model"
         model = MyResNet50(num_classes=num_classes, freeze=freeze)
         
@@ -20,9 +21,9 @@ def build_backbone(model_name=None, num_classes=7, freeze=False):
 class MyResNet50(nn.Module):
     def __init__(self, num_classes=7, freeze=False, dropout_rate=0.5):
         super(MyResNet50, self).__init__()
-        # 加载预训练的 ResNet-50 模型
+        ## Load pytorch resnet50 model
         self.resnet_50 = models.resnet50(weights=ResNet50_Weights.DEFAULT)
-        # 获取 ResNet-50 的特征提取部分，即去掉最后一层全连接层之前的部分
+        ## Discard the classifier and add dropout layer
         self.features = nn.Sequential(*list(self.resnet_50.children())[:-1], nn.Dropout(p=dropout_rate))
 
         if freeze:
@@ -43,7 +44,6 @@ class MyResNet50(nn.Module):
             nn.init.constant_(self.fc.bias, 0)
 
     def forward(self, x):
-        # 将输入通过 ResNet-50 的特征提取部分传递
         features = self.features(x).squeeze()
         output = self.fc(features)
         return output, features
@@ -60,18 +60,9 @@ class SequenceModel(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
+        ## Input size: [batch_size, seq_length, feat_size], Output size: [batch_size, seq_length, hidden_size]
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         out, _ = self.lstm(x, (h0, c0))
         out = self.fc(out)
         return out
-
-
-
-
-# 训练模型（假设你有训练数据和标签）
-# 这里假设你有数据 x 和标签 y
-# x 的形状是 (batch_size, sequence_length, input_size)，y 的形状是 (batch_size,)
-# batch_size 是你的训练批次大小
-# 你需要将 x 和 y 转换为张量，然后将它们传递给模型和损失函数
-# 之后通过优化器更新模型参数

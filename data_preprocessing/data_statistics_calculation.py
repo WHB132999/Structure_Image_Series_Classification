@@ -34,12 +34,13 @@ def statistics_of_structure(folder_path):
                 all_values = json_data.values()
                 for value_i in all_values:
 
+                    ## Get the pure stage number as GT
                     stage_num = int(value_i.split('-')[1].split('_')[0])
 
                     all_stages_each_structure.append(stage_num)
 
 
-                ## Verify whether the GT are correct, namely the labels should always increase
+                ## Verify whether the GT are correct, namely the labels should always increase MONO
                 false_label_idx = []
                 for i in range(1, len(all_stages_each_structure)):
                     if all_stages_each_structure[i] < all_stages_each_structure[i - 1]:
@@ -49,6 +50,7 @@ def statistics_of_structure(folder_path):
                 if false_label_idx:
                     all_stages_each_structure = [] ## set this variable to empty
                     ## This means some labels in this GT-file are wrong
+                    ## Then make these labels monotonous increasing
                     for false_idx in false_label_idx:
                         for idx, (key, value) in enumerate(json_data.items()):
                             if idx == false_idx - 1:
@@ -68,7 +70,7 @@ def statistics_of_structure(folder_path):
                         json.dump(json_data, clean_json_file, indent=4)
 
                     
-
+                ## Counting the number of each stage of each structure
                 for stage_label_i in range(0, max_stage_label + 1):
                     count_stage_i = all_stages_each_structure.count(stage_label_i)
                     statistics_of_each_structure.append(count_stage_i)
@@ -79,7 +81,7 @@ def statistics_of_structure(folder_path):
 ## Container of the final statistics of all structures
 statistics_of_all_structures = []
 
-
+## Load all structures
 for clean_folder_i in range(1, camera_nums + 1):
     for structure_num_i in range(0, structure_num_each_cam[clean_folder_i - 1]):
         structure_path_i = os.path.join(clean_image_root,
@@ -89,19 +91,21 @@ for clean_folder_i in range(1, camera_nums + 1):
         final_statistics_per_structure = statistics_of_structure(structure_path_i)
         statistics_of_all_structures.append(final_statistics_per_structure)
 
-print(statistics_of_all_structures)
-print(len(statistics_of_all_structures))
 
 statistics_array = np.array(statistics_of_all_structures)
 print(statistics_array.shape)
+
+## Get the number of all selected images
 all_images_nums = statistics_array.sum()
 
 sns.set(style='whitegrid', font_scale=0.7)
 
+## Plot the statistics
 plt.figure(figsize=(55, 7))
 
 sns.heatmap(statistics_array, annot=True, fmt='d', cmap='YlGnBu')
 
+## Mark the special structures RED
 special_structure_idx = [9, 14, 22, 23, 45, 46]
 for idx in special_structure_idx:
     plt.axhspan(ymin=idx, ymax=idx + 1, color='red')

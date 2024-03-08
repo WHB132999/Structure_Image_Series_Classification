@@ -3,6 +3,8 @@ import shutil
 import json
 import numpy as np
 
+## Conducting the final training and validation folders/json_files for classification (with LSTM)
+
 absolute_path = os.getcwd()
 source_folder = absolute_path.replace('\\', '/') + '/dataset/foundation_images'
 target_folder = absolute_path.replace('\\', '/') + '/dataset/final_images_labels/structure_image_series_wo_special_train'
@@ -44,7 +46,8 @@ for clean_folder_i in range(1, camera_nums + 1):
 
                         start = 0
                         end = len(keys_list) - 1
-
+                        
+                        ## Uniformly selected 32 labels from e.g. 58 labels, then all sequence lengths are same -> 32
                         selected_key_idx = np.linspace(start, end, sequence_len, dtype=int)
 
                         selected_keys = [keys_list[i] for i in selected_key_idx]
@@ -54,13 +57,13 @@ for clean_folder_i in range(1, camera_nums + 1):
                         all_labels.update(selected_json_data)
             
 
-print(len(all_labels))
-# with open(all_structure_labels_file, 'w') as clean_json_file:
-#     json.dump(all_labels, clean_json_file, indent=4)
+with open(all_structure_labels_file, 'w') as clean_json_file:
+    json.dump(all_labels, clean_json_file, indent=4)
 
 
 root_image_folder = absolute_path.replace('\\', '/') + '/dataset/final_images_labels/structure_images_wo_special_train'
 
+## Based on uniformly selected labels, select the corresponding images
 for key in all_labels.keys():
 
     for filename in os.listdir(root_image_folder):
