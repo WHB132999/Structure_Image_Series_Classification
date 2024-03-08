@@ -8,7 +8,7 @@ __pycache__
 # IDE-specific files
 .vscode/
 .idea/
-.dataset/
+.dataset
 
 # Compiled Python files
 *.pyc
